@@ -4,7 +4,7 @@ struct SignUpReq {
 }
 
 struct SignUpResp {
-    1: required i64 id
+    1: required i64 id1
 }
 
 service NasFish{
