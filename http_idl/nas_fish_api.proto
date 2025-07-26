@@ -1,0 +1,26 @@
+syntax = "proto2";
+
+package nas_fish_api;
+
+option go_package = "nas_fish_api";
+
+import "api.proto";
+
+message SignUpReq {
+  required string email = 1[(api.body)="email"];
+  required string password = 2[(api.body)="password"];
+}
+
+message SignUpResp {
+  required int64 code = 1;
+  required string message = 2;
+  optional SignUpData data = 3;
+}
+message SignUpData {
+  required int64 id = 1;
+}
+service NasFishApi {
+  rpc SignUp(SignUpReq) returns(SignUpResp) {
+    option (api.post) = "/user/signup";
+  }
+}
