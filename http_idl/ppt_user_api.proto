@@ -1,0 +1,408 @@
+syntax = "proto2";
+
+package user_api;
+
+option go_package = "ppt_user_api";
+
+import "api.proto";
+
+// ============== Service Definition ==============
+service PPTUserApi {
+  // C端认证接口
+  rpc WechatLogin(WechatLoginReq) returns(WechatLoginResp) {
+    option (api.post) = "/app/auth/login/wechat";
+  }
+  rpc BindPhone(BindPhoneReq) returns(BindPhoneResp) {
+    option (api.post) = "/app/auth/bind-phone";
+  }
+  
+  // C端用户接口
+  rpc GetProfile(GetProfileReq) returns(GetProfileResp) {
+    option (api.get) = "/app/user/profile/get";
+  }
+  rpc UpdateProfile(UpdateProfileReq) returns(UpdateProfileResp) {
+    option (api.put) = "/app/user/profile/update";
+  }
+  rpc SwitchIdentity(SwitchIdentityReq) returns(SwitchIdentityResp) {
+    option (api.put) = "/app/user/identity/switch";
+  }
+  
+  // C端申请接口
+  rpc CreateMerchantApply(MerchantApplyReq) returns(MerchantApplyResp) {
+    option (api.post) = "/app/user/apply/merchant/create";
+  }
+  rpc UpdateMerchantApply(MerchantApplyReq) returns(MerchantApplyResp) {
+    option (api.put) = "/app/user/apply/merchant/update";
+  }
+  rpc CreateHelperApply(HelperApplyReq) returns(HelperApplyResp) {
+    option (api.post) = "/app/user/apply/helper/create";
+  }
+  rpc UpdateHelperApply(HelperApplyReq) returns(HelperApplyResp) {
+    option (api.put) = "/app/user/apply/helper/update";
+  }
+  rpc GetLatestApply(GetLatestApplyReq) returns(GetLatestApplyResp) {
+    option (api.get) = "/app/user/apply/get-latest";
+  }
+  rpc GetMerchantApplyDetail(GetMerchantApplyDetailReq) returns(GetMerchantApplyDetailResp) {
+    option (api.get) = "/app/user/apply/merchant/get-detail";
+  }
+  
+  // C端公共接口
+  rpc ListCommunities(ListCommunitiesReq) returns(ListCommunitiesResp) {
+    option (api.get) = "/app/common/community/list";
+  }
+  
+  // B端认证接口
+  rpc AdminLogin(AdminLoginReq) returns(AdminLoginResp) {
+    option (api.post) = "/admin/auth/login";
+  }
+  
+  // B端社区管理接口
+  rpc CreateCommunity(CreateCommunityReq) returns(CreateCommunityResp) {
+    option (api.post) = "/admin/community/create";
+  }
+  rpc UpdateCommunity(UpdateCommunityReq) returns(UpdateCommunityResp) {
+    option (api.put) = "/admin/community/update";
+  }
+  rpc ListCommunityPage(ListCommunityPageReq) returns(ListCommunityPageResp) {
+    option (api.get) = "/admin/community/page";
+  }
+  rpc GetCommunityAccounts(GetCommunityAccountsReq) returns(GetCommunityAccountsResp) {
+    option (api.get) = "/admin/community/:communityId/accounts";
+  }
+  rpc ResetPassword(ResetPasswordReq) returns(ResetPasswordResp) {
+    option (api.put) = "/admin/community/account/reset-password";
+  }
+  rpc ToggleCommunityStatus(ToggleCommunityStatusReq) returns(ToggleCommunityStatusResp) {
+    option (api.put) = "/admin/community/toggle-status";
+  }
+  
+  // B端审核接口
+  rpc GetPendingList(GetPendingListReq) returns(GetPendingListResp) {
+    option (api.get) = "/admin/audit/pending/list";
+  }
+  rpc ProcessAudit(ProcessAuditReq) returns(ProcessAuditResp) {
+    option (api.post) = "/admin/audit/process";
+  }
+}
+
+// ============== Common Structs ==============
+message IdentityInfo {
+  required string identity = 1;
+  required string name = 2;
+  required string status = 3;
+}
+
+message CommunityAuditStatus {
+  required int64 communityId = 1;
+  required string communityName = 2;
+  required string status = 3;
+  optional string reason = 4;
+}
+
+message CommunityInfo {
+  required int64 id = 1;
+  required string name = 2;
+  optional string regionCode = 3;
+  optional string address = 4;
+  optional string serviceRadius = 5;
+  required int32 status = 6;
+}
+
+message AccountInfo {
+  required int64 id = 1;
+  required string username = 2;
+  required string roleType = 3;
+  required int32 status = 4;
+}
+
+message IdentityApplyInfo {
+  required int64 id = 1;
+  required int64 userId = 2;
+  required int64 communityId = 3;
+  required int32 applyType = 4;
+  required string applyData = 5;
+  required int32 status = 6;
+  optional string auditReason = 7;
+  optional int64 auditorId = 8;
+  optional int64 auditTime = 9;
+  optional int64 createTime = 10;
+}
+
+// ============== C端认证接口 ==============
+message WechatLoginReq {
+  required string code = 1[(api.body)="code"];
+}
+
+message WechatLoginResp {
+  required int64 code = 1;
+  required string message = 2;
+  optional WechatLoginData data = 3;
+}
+
+message WechatLoginData {
+  required string token = 1;
+  required int64 userId = 2;
+  required bool isNewUser = 3;
+}
+
+message BindPhoneReq {
+  optional string encryptedData = 1[(api.body)="encryptedData"];
+  optional string iv = 2[(api.body)="iv"];
+  optional string mobile = 3[(api.body)="mobile"];
+}
+
+message BindPhoneResp {
+  required int64 code = 1;
+  required string message = 2;
+}
+
+// ============== C端用户接口 ==============
+message GetProfileReq {
+}
+
+message GetProfileResp {
+  required int64 code = 1;
+  required string message = 2;
+  optional GetProfileData data = 3;
+}
+
+message GetProfileData {
+  required int64 userId = 1;
+  optional string nickname = 2;
+  optional string avatarUrl = 3;
+  optional string mobile = 4;
+  required int32 roleMask = 5;
+  required string currentIdentity = 6;
+  repeated IdentityInfo identities = 7;
+}
+
+message UpdateProfileReq {
+  optional string nickname = 1[(api.body)="nickname"];
+  optional string avatarUrl = 2[(api.body)="avatarUrl"];
+}
+
+message UpdateProfileResp {
+  required int64 code = 1;
+  required string message = 2;
+}
+
+message SwitchIdentityReq {
+  required string targetIdentity = 1[(api.body)="targetIdentity"];
+}
+
+message SwitchIdentityResp {
+  required int64 code = 1;
+  required string message = 2;
+}
+
+// ============== C端申请接口 ==============
+message MerchantApplyReq {
+  required string shopName = 1[(api.body)="shopName"];
+  required string contactPhone = 2[(api.body)="contactPhone"];
+  required string shopAddress = 3[(api.body)="shopAddress"];
+  optional string latitude = 4[(api.body)="latitude"];
+  optional string longitude = 5[(api.body)="longitude"];
+  required string licenseImg = 6[(api.body)="licenseImg"];
+  optional string shopFrontImg = 7[(api.body)="shopFrontImg"];
+  repeated int64 communityIds = 8[(api.body)="communityIds"];
+}
+
+message MerchantApplyResp {
+  required int64 code = 1;
+  required string message = 2;
+}
+
+message HelperApplyReq {
+  required string realName = 1[(api.body)="realName"];
+  repeated string skillTags = 2[(api.body)="skillTags"];
+  optional string intro = 3[(api.body)="intro"];
+  repeated string certImgs = 4[(api.body)="certImgs"];
+  required int64 communityId = 5[(api.body)="communityId"];
+}
+
+message HelperApplyResp {
+  required int64 code = 1;
+  required string message = 2;
+}
+
+message GetLatestApplyReq {
+}
+
+message GetLatestApplyResp {
+  required int64 code = 1;
+  required string message = 2;
+  optional GetLatestApplyData data = 3;
+}
+
+message GetLatestApplyData {
+  optional int64 applyId = 1;
+  optional string applyType = 2;
+  optional string applyData = 3;
+  optional int64 createTime = 4;
+  repeated CommunityAuditStatus auditDetails = 5;
+}
+
+message GetMerchantApplyDetailReq {
+}
+
+message GetMerchantApplyDetailResp {
+  required int64 code = 1;
+  required string message = 2;
+  optional GetMerchantApplyDetailData data = 3;
+}
+
+message GetMerchantApplyDetailData {
+  optional int64 applyId = 1;
+  optional string status = 2;
+  optional string auditReason = 3;
+  optional string applyData = 4;
+}
+
+// ============== C端公共接口 ==============
+message ListCommunitiesReq {
+}
+
+message ListCommunitiesResp {
+  required int64 code = 1;
+  required string message = 2;
+  optional ListCommunitiesData data = 3;
+}
+
+message ListCommunitiesData {
+  repeated CommunityInfo communities = 1;
+}
+
+// ============== B端认证接口 ==============
+message AdminLoginReq {
+  required string username = 1[(api.body)="username"];
+  required string password = 2[(api.body)="password"];
+}
+
+message AdminLoginResp {
+  required int64 code = 1;
+  required string message = 2;
+  optional AdminLoginData data = 3;
+}
+
+message AdminLoginData {
+  required string token = 1;
+  required int64 userId = 2;
+  required bool isNewUser = 3;
+}
+
+// ============== B端社区管理接口 ==============
+message CreateCommunityReq {
+  required string name = 1[(api.body)="name"];
+  optional string regionCode = 2[(api.body)="regionCode"];
+  required string address = 3[(api.body)="address"];
+  optional string serviceRadius = 4[(api.body)="serviceRadius"];
+  optional string contactJuwei = 5[(api.body)="contactJuwei"];
+  optional string contactOperator = 6[(api.body)="contactOperator"];
+}
+
+message CreateCommunityResp {
+  required int64 code = 1;
+  required string message = 2;
+  optional CreateCommunityData data = 3;
+}
+
+message CreateCommunityData {
+  required int64 communityId = 1;
+  required string communityName = 2;
+  required string operatorUsername = 3;
+  required string operatorPassword = 4;
+  required string committeeUsername = 5;
+  required string committeePassword = 6;
+}
+
+message UpdateCommunityReq {
+  required int64 communityId = 1[(api.query)="communityId"];
+  required string name = 2[(api.body)="name"];
+  optional string regionCode = 3[(api.body)="regionCode"];
+  required string address = 4[(api.body)="address"];
+  optional string serviceRadius = 5[(api.body)="serviceRadius"];
+  optional string contactJuwei = 6[(api.body)="contactJuwei"];
+  optional string contactOperator = 7[(api.body)="contactOperator"];
+}
+
+message UpdateCommunityResp {
+  required int64 code = 1;
+  required string message = 2;
+}
+
+message ListCommunityPageReq {
+}
+
+message ListCommunityPageResp {
+  required int64 code = 1;
+  required string message = 2;
+  optional ListCommunityPageData data = 3;
+}
+
+message ListCommunityPageData {
+  repeated CommunityInfo communities = 1;
+}
+
+message GetCommunityAccountsReq {
+  required int64 communityId = 1[(api.path)="communityId"];
+}
+
+message GetCommunityAccountsResp {
+  required int64 code = 1;
+  required string message = 2;
+  optional GetCommunityAccountsData data = 3;
+}
+
+message GetCommunityAccountsData {
+  repeated AccountInfo accounts = 1;
+}
+
+message ResetPasswordReq {
+  required int64 sysUserId = 1[(api.query)="sysUserId"];
+}
+
+message ResetPasswordResp {
+  required int64 code = 1;
+  required string message = 2;
+  optional ResetPasswordData data = 3;
+}
+
+message ResetPasswordData {
+  required string newPassword = 1;
+}
+
+message ToggleCommunityStatusReq {
+  required int64 communityId = 1[(api.query)="communityId"];
+  required bool enabled = 2[(api.query)="enabled"];
+}
+
+message ToggleCommunityStatusResp {
+  required int64 code = 1;
+  required string message = 2;
+}
+
+// ============== B端审核接口 ==============
+message GetPendingListReq {
+}
+
+message GetPendingListResp {
+  required int64 code = 1;
+  required string message = 2;
+  optional GetPendingListData data = 3;
+}
+
+message GetPendingListData {
+  repeated IdentityApplyInfo applies = 1;
+}
+
+message ProcessAuditReq {
+  required int64 applyId = 1[(api.body)="applyId"];
+  required string action = 2[(api.body)="action"];
+  optional string reason = 3[(api.body)="reason"];
+}
+
+message ProcessAuditResp {
+  required int64 code = 1;
+  required string message = 2;
+}
