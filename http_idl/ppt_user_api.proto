@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-package user_api;
+package ppt_user_api;
 
 option go_package = "ppt_user_api";
 

@@ -1,4 +1,4 @@
-namespace go user_service
+namespace go ppt_user_service
 
 // ============== Enums ==============
 
